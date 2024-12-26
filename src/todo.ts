@@ -1,4 +1,4 @@
-/** 
+/**
  * Represents a todo item in the application
  * @interface Todo
  */

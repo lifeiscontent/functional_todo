@@ -13,7 +13,7 @@ describe('InputView', () => {
 
   it('should handle hover and focus events', () => {
     const view = InputView.create();
-    
+
     // Initial state
     expect(view.input.style.backgroundColor).toBe('rgb(241, 241, 241)');
     expect(view.input.style.borderColor).toBe('transparent');

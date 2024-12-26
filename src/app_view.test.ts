@@ -1,19 +1,23 @@
 import { describe, it, expect, vi } from 'vitest';
 import * as AppView from './app_view';
 import type { Todo } from './todo';
-import type { Action } from './app_store';
+import type * as AppStore from './app_store';
 
 describe('AppView', () => {
-  it('should create app view with all elements', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: (_dispatch: (action: Action) => void) => () => {},
+  function createMockStore(initialTodos: Todo[] = []) {
+    return {
+      getState: () => ({ todos: initialTodos }),
+      subscribe: vi.fn(
+        (_dispatch: (action: AppStore.Action) => void) => () => {},
+      ),
       addTodo: vi.fn(),
       removeTodo: vi.fn(),
       toggleTodo: vi.fn(),
     };
+  }
 
-    const view = AppView.create(mockStore);
+  it('should create app view with all elements', () => {
+    const view = AppView.create(createMockStore());
 
     expect(view.container).toBeInstanceOf(HTMLDivElement);
     expect(view.heading).toBeInstanceOf(HTMLHeadingElement);
@@ -25,15 +29,9 @@ describe('AppView', () => {
   });
 
   it('should handle form submission', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: (_dispatch: (action: Action) => void) => () => {},
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
-    };
-
+    const mockStore = createMockStore();
     const view = AppView.create(mockStore);
+
     view.input.value = 'Test todo';
     view.form.dispatchEvent(new Event('submit'));
 
@@ -42,15 +40,9 @@ describe('AppView', () => {
   });
 
   it('should not add empty todos', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: (_dispatch: (action: Action) => void) => () => {},
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
-    };
-
+    const mockStore = createMockStore();
     const view = AppView.create(mockStore);
+
     view.input.value = '   ';
     view.form.dispatchEvent(new Event('submit'));
 
@@ -58,15 +50,9 @@ describe('AppView', () => {
   });
 
   it('should handle todo actions', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: vi.fn(),
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
-    };
-
+    const mockStore = createMockStore();
     AppView.create(mockStore);
+
     const subscriber = mockStore.subscribe.mock.calls[0][0];
 
     // Test todoAdded action
@@ -76,7 +62,9 @@ describe('AppView', () => {
 
     // Test todoUpdated action
     subscriber({ type: 'todoUpdated', todo: { ...todo, completed: true } });
-    const checkbox = document.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    const checkbox = document.querySelector<HTMLInputElement>(
+      'input[type="checkbox"]',
+    );
     expect(checkbox?.checked).toBe(true);
 
     // Test todoRemoved action
@@ -85,15 +73,9 @@ describe('AppView', () => {
   });
 
   it('should handle unknown action', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: vi.fn(),
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
-    };
-
+    const mockStore = createMockStore();
     AppView.create(mockStore);
+
     const subscriber = mockStore.subscribe.mock.calls[0][0];
 
     expect(() => {
@@ -102,28 +84,18 @@ describe('AppView', () => {
   });
 
   it('should initialize with existing todos', () => {
-    const todo: Todo = { id: Symbol(), text: 'Existing todo', completed: false };
-    const mockStore = {
-      getState: () => ({ todos: [todo] }),
-      subscribe: (_dispatch: (action: Action) => void) => () => {},
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
+    const todo: Todo = {
+      id: Symbol(),
+      text: 'Existing todo',
+      completed: false,
     };
+    AppView.create(createMockStore([todo]));
 
-    AppView.create(mockStore);
     expect(document.querySelectorAll('li').length).toBe(1);
   });
 
   it('should handle non-existent todo item views', () => {
-    const mockStore = {
-      getState: () => ({ todos: [] }),
-      subscribe: vi.fn(),
-      addTodo: vi.fn(),
-      removeTodo: vi.fn(),
-      toggleTodo: vi.fn(),
-    };
-
+    const mockStore = createMockStore();
     const view = AppView.create(mockStore);
     const subscriber = mockStore.subscribe.mock.calls[0][0];
 
@@ -132,14 +104,22 @@ describe('AppView', () => {
     subscriber({ type: 'todoAdded', todo });
 
     // Test todoUpdated action with non-existent todo
-    const nonExistentTodo: Todo = { id: Symbol(), text: 'Non-existent', completed: false };
+    const nonExistentTodo: Todo = {
+      id: Symbol(),
+      text: 'Non-existent',
+      completed: false,
+    };
     subscriber({ type: 'todoUpdated', todo: nonExistentTodo });
     expect(view.ul.children.length).toBe(1);
-    expect(view.ul.children[0].querySelector('label')?.textContent?.trim()).toBe('Test todo');
+    expect(
+      view.ul.children[0].querySelector('label')?.textContent?.trim(),
+    ).toBe('Test todo');
 
     // Test todoRemoved action with non-existent todo
     subscriber({ type: 'todoRemoved', id: nonExistentTodo.id });
     expect(view.ul.children.length).toBe(1);
-    expect(view.ul.children[0].querySelector('label')?.textContent?.trim()).toBe('Test todo');
+    expect(
+      view.ul.children[0].querySelector('label')?.textContent?.trim(),
+    ).toBe('Test todo');
   });
 });

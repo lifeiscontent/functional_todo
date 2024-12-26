@@ -13,7 +13,7 @@ describe('AddButtonView', () => {
 
   it('should handle hover and focus events', () => {
     const view = AddButtonView.create();
-    
+
     // Initial state
     expect(view.addButton.style.backgroundColor).toBe('rgb(241, 241, 241)');
     expect(view.addButton.style.borderColor).toBe('transparent');

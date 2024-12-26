@@ -58,14 +58,22 @@ describe('TodoItemView', () => {
     const onRemove = vi.fn();
 
     const view = TodoItemView.create(todo, onToggle, onRemove);
-    TodoItemView.update(view, { ...todo, completed: true, text: 'Updated todo' });
+    TodoItemView.update(view, {
+      ...todo,
+      completed: true,
+      text: 'Updated todo',
+    });
 
     expect(view.checkbox.checked).toBe(true);
     expect(view.label.textContent).toBe('Updated todo');
     expect(view.label.style.textDecoration).toBe('line-through');
 
     // Test updating back to uncompleted
-    TodoItemView.update(view, { ...todo, completed: false, text: 'Updated again' });
+    TodoItemView.update(view, {
+      ...todo,
+      completed: false,
+      text: 'Updated again',
+    });
     expect(view.checkbox.checked).toBe(false);
     expect(view.label.style.textDecoration).toBe('none');
   });

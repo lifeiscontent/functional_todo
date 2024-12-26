@@ -17,7 +17,7 @@ describe('DeleteButtonView', () => {
     const todo: Todo = { id: Symbol(), text: 'Test todo', completed: false };
     const onRemove = vi.fn();
     const view = DeleteButtonView.create(todo, onRemove);
-    
+
     // Initial state
     expect(view.deleteButton.style.backgroundColor).toBe('rgb(255, 68, 68)');
     expect(view.deleteButton.style.borderColor).toBe('transparent');

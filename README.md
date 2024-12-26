@@ -7,6 +7,7 @@ A simple, functional and immutable todo application built with TypeScript demons
 The project follows a modular architecture with clear separation of concerns:
 
 ### `/src`
+
 - `todo.ts`: Core domain model defining the `Todo` interface
 - `store.ts`: Generic store interface for state management
 - `app_store.ts`: Todo-specific store implementation with state management and actions
@@ -25,16 +26,19 @@ The project follows a modular architecture with clear separation of concerns:
 The application follows these key architectural principles:
 
 1. **Immutable State Management**
+
    - All state updates create new state objects rather than mutating existing ones
    - State changes are handled through a centralized store
    - Typed actions for predictable state mutations
 
 2. **Event-Based Architecture**
+
    - Uses a publish/subscribe pattern for state updates
    - Components subscribe to state changes and update accordingly
    - Strong typing ensures type-safe event handling
 
 3. **Functional Components**
+
    - UI components are created using pure functions
    - Side effects are isolated and managed through callbacks
    - Clear separation between view logic and state management

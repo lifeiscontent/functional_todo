@@ -37,7 +37,7 @@ describe('AppStore', () => {
       store.addTodo('First todo');
       store.addTodo('Second todo');
       const [todo1] = store.getState().todos;
-      
+
       store.toggleTodo(todo1.id);
       const state = store.getState();
       expect(state.todos[0].completed).toBe(true); // First todo toggled
@@ -56,7 +56,7 @@ describe('AppStore', () => {
       const store = AppStore.create({ todos: [] });
       store.addTodo('Test todo');
       const todo = store.getState().todos[0];
-      
+
       store.removeTodo(todo.id);
       expect(store.getState().todos).toHaveLength(0);
     });
@@ -71,7 +71,7 @@ describe('AppStore', () => {
     it('should notify subscribers of state changes', () => {
       const store = AppStore.create({ todos: [] });
       const actions: AppStore.Action[] = [];
-      
+
       store.subscribe((action) => {
         actions.push(action);
       });
@@ -142,23 +142,23 @@ describe('AppStore', () => {
       const store = AppStore.create({ todos: [] });
       const subscriber1 = (_action: AppStore.Action) => {};
       const subscriber2 = (_action: AppStore.Action) => {};
-      
+
       // Subscribe both subscribers
       const unsubscribe1 = store.subscribe(subscriber1);
       const unsubscribe2 = store.subscribe(subscriber2);
 
       // Unsubscribe the first one
       unsubscribe1();
-      
+
       // Add a todo to verify subscriber2 still gets notifications
       store.addTodo('Test todo');
 
       // Try to unsubscribe subscriber1 again (should handle -1 index)
       expect(() => unsubscribe1()).not.toThrow();
-      
+
       // Unsubscribe subscriber2
       unsubscribe2();
-      
+
       // Try to unsubscribe both again (should handle empty subscribers array)
       expect(() => {
         unsubscribe1();
