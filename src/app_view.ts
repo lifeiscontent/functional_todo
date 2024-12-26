@@ -1,27 +1,46 @@
+/** Main application view module */
 import type * as AppStore from "./app_store";
 import { Todo } from "./todo";
 import * as TodoItemView from "./todo_item_view";
+import * as AddButtonView from "./app_view/add_button_view";
+import * as InputView from "./app_view/input_view";
 
+/** Main application view structure */
 export type t = {
+  /** Button for adding new todos */
   addButton: HTMLButtonElement;
+  /** Main container div */
   container: HTMLDivElement;
+  /** Form for todo input */
   form: HTMLFormElement;
+  /** Main heading */
   heading: HTMLHeadingElement;
+  /** Input field for new todos */
   input: HTMLInputElement;
+  /** List container for todos */
   ul: HTMLUListElement;
 };
 
+/**
+ * Creates the main application view
+ * @param appStore - The application store instance
+ * @returns The main application view structure
+ */
 export function create(appStore: AppStore.t): t {
   const container = document.createElement("div");
-  container.style.maxWidth = "400px";
+  container.style.maxWidth = "1280px";
   container.style.margin = "0 auto";
-  container.style.fontFamily = "sans-serif";
-  container.style.padding = "1rem";
+  container.style.padding = "2rem";
+  container.style.textAlign = "center";
+  container.style.fontFamily =
+    "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif";
 
   document.body.appendChild(container);
 
   const heading = document.createElement("h1");
   heading.textContent = "Functional & Immutable Todo";
+  heading.style.fontSize = "3.2em";
+  heading.style.lineHeight = "1.1";
   heading.style.textAlign = "center";
   container.appendChild(heading);
 
@@ -29,17 +48,9 @@ export function create(appStore: AppStore.t): t {
   form.style.display = "flex";
   form.style.marginBottom = "1rem";
 
-  const input = document.createElement("input");
-  input.type = "text";
-  input.placeholder = "What needs to be done?";
-  input.style.flex = "1";
-  input.style.padding = "8px";
-  input.style.marginRight = "8px";
+  const { input } = InputView.create();
 
-  const addButton = document.createElement("button");
-  addButton.type = "submit";
-  addButton.textContent = "Add";
-  addButton.style.padding = "8px 16px";
+  const { addButton } = AddButtonView.create();
 
   form.appendChild(input);
   form.appendChild(addButton);

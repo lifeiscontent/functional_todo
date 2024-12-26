@@ -1,4 +1,3 @@
-import "./style.css";
 import * as AppStore from "./app_store.ts";
 import * as AppView from "./app_view.ts";
 
