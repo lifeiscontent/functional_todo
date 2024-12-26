@@ -2,7 +2,16 @@ import type * as AppStore from "./app_store";
 import { Todo } from "./todo";
 import * as TodoItemView from "./todo_item_view";
 
-export function create(appStore: ReturnType<typeof AppStore.create>) {
+export type t = {
+  addButton: HTMLButtonElement;
+  container: HTMLDivElement;
+  form: HTMLFormElement;
+  heading: HTMLHeadingElement;
+  input: HTMLInputElement;
+  ul: HTMLUListElement;
+};
+
+export function create(appStore: AppStore.t): t {
   const container = document.createElement("div");
   container.style.maxWidth = "400px";
   container.style.margin = "0 auto";
@@ -41,10 +50,7 @@ export function create(appStore: ReturnType<typeof AppStore.create>) {
   ul.style.paddingLeft = "0";
   container.appendChild(ul);
 
-  const todoItemViews: Map<
-    Todo["id"],
-    ReturnType<typeof TodoItemView.create>
-  > = new Map();
+  const todoItemViews: Map<Todo["id"], TodoItemView.t> = new Map();
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -54,42 +60,46 @@ export function create(appStore: ReturnType<typeof AppStore.create>) {
     }
   });
 
-  appStore.subscribe((event) => {
-    switch (event.type) {
+  appStore.subscribe((action) => {
+    switch (action.type) {
       case "todoAdded": {
         const todoItemView = TodoItemView.create(
-          event.todo,
+          action.todo,
           appStore.toggleTodo,
           appStore.removeTodo
         );
         ul.appendChild(todoItemView.li);
-        todoItemViews.set(event.todo.id, todoItemView);
+        todoItemViews.set(action.todo.id, todoItemView);
         break;
       }
 
       case "todoUpdated": {
-        const todoItemView = todoItemViews.get(event.todo.id);
+        const todoItemView = todoItemViews.get(action.todo.id);
         if (!todoItemView) return;
-        TodoItemView.update(todoItemView, event.todo);
+        TodoItemView.update(todoItemView, action.todo);
         break;
       }
 
       case "todoRemoved": {
-        const todoItemView = todoItemViews.get(event.id);
+        const todoItemView = todoItemViews.get(action.id);
         if (!todoItemView) return;
         TodoItemView.remove(todoItemView);
-        todoItemViews.delete(event.id);
+        todoItemViews.delete(action.id);
         break;
       }
 
       default: {
-        throw new Error(`Unknown event type: ${event}`);
+        throw new Error(`Unknown action: ${action}`);
       }
     }
   });
 
   appStore.getState().todos.forEach((todo) => {
-    const todoItemView = TodoItemView.create(todo, appStore.toggleTodo, appStore.removeTodo);
+    const todoItemView = TodoItemView.create(
+      todo,
+      appStore.toggleTodo,
+      appStore.removeTodo
+    );
     ul.appendChild(todoItemView.li);
     todoItemViews.set(todo.id, todoItemView);
   });

@@ -1,58 +1,35 @@
+import { Store } from "./Store";
 import { Todo } from "./todo";
 
-interface AppStoreState {
+export type State = {
   todos: Todo[];
-}
+};
 
-type AppStoreEvent =
+export type Action =
   | { type: "todoAdded"; todo: Todo }
   | { type: "todoUpdated"; todo: Todo }
   | { type: "todoRemoved"; id: Todo["id"] };
 
-type AppStoreListener = (event: AppStoreEvent) => void;
+export type t = Store<State, Action> & {
+  addTodo: (text: string) => void;
+  removeTodo: (id: Todo["id"]) => void;
+  toggleTodo: (id: Todo["id"]) => void;
+};
 
-export function create(initialState: AppStoreState) {
+export function create(initialState: State): t {
   let state = initialState;
-  const appListeners: AppStoreListener[] = [];
+  const subscribers: ((action: Action) => void)[] = [];
 
-  const publish = (event: AppStoreEvent) => {
-    switch (event.type) {
-      case "todoAdded": {
-        state = {
-          ...state,
-          todos: [...state.todos, event.todo],
-        };
-        break;
-      }
-      case "todoUpdated": {
-        state = {
-          ...state,
-          todos: state.todos.map((t) =>
-            t.id === event.todo.id ? event.todo : t
-          ),
-        };
-        break;
-      }
-      case "todoRemoved": {
-        state = {
-          ...state,
-          todos: state.todos.filter((t) => t.id !== event.id),
-        };
-        break;
-      }
-      default: {
-        throw new Error(`Unknown event type: ${event}`);
-      }
-    }
-    for (const listener of appListeners) {
-      listener(event);
+  const dispatch: (action: Action) => void = (action) => {
+    for (const subscriber of subscribers) {
+      subscriber(action);
     }
   };
 
   return {
-    getState: (): Readonly<AppStoreState> => state,
-    subscribe: (listener: AppStoreListener) => {
-      appListeners.push(listener);
+    getState: (): Readonly<State> => state,
+    subscribe: (subscriber: (action: Action) => void) => {
+      subscribers.push(subscriber);
     },
     addTodo: (text: string) => {
       if (!text.trim()) return;
@@ -63,21 +40,38 @@ export function create(initialState: AppStoreState) {
         completed: false,
       };
 
-      publish({ type: "todoAdded", todo: newTodo });
+      state = {
+        ...state,
+        todos: [...state.todos, newTodo],
+      };
+
+      dispatch({ type: "todoAdded", todo: newTodo });
     },
     toggleTodo: (id: Todo["id"]) => {
       const todo = state.todos.find((t) => t.id === id);
       if (!todo) return;
 
-      publish({
+      const updatedTodo = { ...todo, completed: !todo.completed };
+
+      state = {
+        ...state,
+        todos: state.todos.map((t) =>
+          t.id === updatedTodo.id ? updatedTodo : t
+        ),
+      };
+      dispatch({
         type: "todoUpdated",
-        todo: { ...todo, completed: !todo.completed },
+        todo: updatedTodo,
       });
     },
     removeTodo: (id: Todo["id"]) => {
       const idx = state.todos.findIndex((t) => t.id === id);
       if (idx === -1) return;
-      publish({ type: "todoRemoved", id });
+      state = {
+        ...state,
+        todos: state.todos.filter((t) => t.id !== id),
+      };
+      dispatch({ type: "todoRemoved", id });
     },
   };
 }

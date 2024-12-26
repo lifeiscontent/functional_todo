@@ -1,10 +1,18 @@
 import type { Todo } from "./todo";
 
+export type t = {
+  checkbox: HTMLInputElement;
+  deleteBtn: HTMLButtonElement;
+  label: HTMLLabelElement;
+  li: HTMLLIElement;
+  textNode: Text;
+}
+
 export function create(
   todo: Todo,
   onToggle: (id: Todo["id"]) => void,
   onRemove: (id: Todo["id"]) => void
-) {
+): t {
   const li = document.createElement("li");
   li.style.display = "flex";
   li.style.alignItems = "center";
@@ -50,7 +58,7 @@ export function create(
 }
 
 export function update(
-  view: ReturnType<typeof create>,
+  view: t,
   todo: Todo
 ) {
   view.textNode.nodeValue = todo.text;
@@ -58,6 +66,6 @@ export function update(
   view.label.style.textDecoration = todo.completed ? "line-through" : "none";
 }
 
-export function remove(view: ReturnType<typeof create>) {
+export function remove(view: t) {
   view.li.remove();
 }
