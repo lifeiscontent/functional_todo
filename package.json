@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "typescript": "~5.6.2",
-    "vite": "^6.0.5"
+    "@vitest/coverage-v8": "2.1.8",
+    "typescript": "5.7.2",
+    "vite": "6.0.6",
+    "vitest": "2.1.8"
   },
   "packageManager": "pnpm@9.14.1+sha256.9978d5f40d4f376b054cf8c000cf8c326284344281e3c9bbf4e3d6f153b0e8de"
 }

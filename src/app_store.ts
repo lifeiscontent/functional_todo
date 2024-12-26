@@ -27,7 +27,7 @@ export type t = Store<State, Action> & {
  */
 export function create(initialState: State): t {
   let state = initialState;
-  const subscribers: ((action: Action) => void)[] = [];
+  const subscribers = new Set<(action: Action) => void>();
 
   const publish: (action: Action) => void = (action) => {
     for (const subscriber of subscribers) {
@@ -45,7 +45,10 @@ export function create(initialState: State): t {
   return {
     getState: (): Readonly<State> => state,
     subscribe: (subscriber: (action: Action) => void) => {
-      subscribers.push(subscriber);
+      subscribers.add(subscriber);
+      return () => {
+        subscribers.delete(subscriber);
+      };
     },
     addTodo: (text: string) => {
       const trimmedText = text.trim();
